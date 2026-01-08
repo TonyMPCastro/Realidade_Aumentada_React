@@ -1,1 +1,50 @@
-[{"id":1767889928056,"name":"Teste","description":"dddddd","modelType":"box","modelUrl":"","position":"0 0.5 0","rotation":"-35 65 -55","scale":"1 1 1","createdAt":"2026-01-08T19:21:03.822Z","fullUrl":"http://localhost:5173/viewer?name=Teste&description=dddddd&modelType=box&modelUrl=&position=0+0.5+0&rotation=-35+65+-55&scale=1+1+1"},{"id":1767890939195,"name":"SERVER 3","description":"cccccccccccc","modelType":"custom","modelUrl":"http://localhost:5173/src/public/estatua.glb","position":"0 -0.1 0","rotation":"0 25 0","scale":"2.1 2.1 2.1","createdAt":"2026-01-08T19:21:31.719Z","fullUrl":"http://localhost:5173/viewer?name=SERVER+3&description=cccccccccccc&modelType=custom&modelUrl=http%3A%2F%2Flocalhost%3A5173%2Fsrc%2Fpublic%2Festatua.glb&position=0+-0.1+0&rotation=0+25+0&scale=2.1+2.1+2.1"},{"id":1767892781141,"name":" Santos Dumont","description":"Alberto Santos Dumont nasceu no Brasil e, desde jovem, foi fascinado por máquinas e pelo sonho humano de voar. Seu interesse pela aviação começou ainda na Europa, onde estudou ciência e engenharia.\n\nEm 1906, Santos Dumont fez história ao pilotar o 14-Bis, o primeiro avião a decolar sozinho diante do público, em Paris, provando que o voo controlado era possível.\n\nReconhecido como o Pai da Aviação, Santos Dumont deixou um legado de inovação e inspiração, defendendo que o conhecimento científico deveria servir ao progresso da humanidade.","modelType":"custom","modelUrl":"http://localhost:5173/src/public/estatua.glb","position":"0 0 0","rotation":"0 0 0","scale":"2.1 2.1 2.1","createdAt":"2026-01-08T19:21:41.081Z","fullUrl":"http://localhost:5173/viewer?name=+Santos+Dumont&description=Alberto+Santos+Dumont+nasceu+no+Brasil+e%2C+desde+jovem%2C+foi+fascinado+por+m%C3%A1quinas+e+pelo+sonho+humano+de+voar.+Seu+interesse+pela+avia%C3%A7%C3%A3o+come%C3%A7ou+ainda+na+Europa%2C+onde+estudou+ci%C3%AAncia+e+engenharia.%0A%0AEm+1906%2C+Santos+Dumont+fez+hist%C3%B3ria+ao+pilotar+o+14-Bis%2C+o+primeiro+avi%C3%A3o+a+decolar+sozinho+diante+do+p%C3%BAblico%2C+em+Paris%2C+provando+que+o+voo+controlado+era+poss%C3%ADvel.%0A%0AReconhecido+como+o+Pai+da+Avia%C3%A7%C3%A3o%2C+Santos+Dumont+deixou+um+legado+de+inova%C3%A7%C3%A3o+e+inspira%C3%A7%C3%A3o%2C+defendendo+que+o+conhecimento+cient%C3%ADfico+deveria+servir+ao+progresso+da+humanidade.&modelType=custom&modelUrl=http%3A%2F%2Flocalhost%3A5173%2Fsrc%2Fpublic%2Festatua.glb&position=0+0+0&rotation=0+0+0&scale=2.1+2.1+2.1"},{"id":1767896265570,"name":"Cérebro","description":"ed","modelType":"custom","modelUrl":"http://localhost:5173/src/public/human-brain.glb","position":"0 0.7 0","rotation":"0 270 0","scale":"1.6 1.6 1.6","createdAt":"2026-01-08T19:23:07.848Z","fullUrl":"http://localhost:5173/viewer?name=C%C3%A9rebro&description=ed&modelType=custom&modelUrl=http%3A%2F%2Flocalhost%3A5173%2Fsrc%2Fpublic%2Fhuman-brain.glb&position=0+0.7+0&rotation=0+270+0&scale=1.6+1.6+1.6"}]
+[
+    {
+        "id": 1767889928056,
+        "name": "Teste",
+        "description": "dddddd",
+        "modelType": "box",
+        "modelUrl": "",
+        "position": "0 0.5 0",
+        "rotation": "-35 65 -55",
+        "scale": "1 1 1",
+        "createdAt": "2026-01-08T19:21:03.822Z",
+        "fullUrl": "https://tonympcastro.github.io.ar_p3_cp/viewer?name=Teste&description=dddddd&modelType=box&modelUrl=&position=0+0.5+0&rotation=-35+65+-55&scale=1+1+1"
+    },
+    {
+        "id": 1767890939195,
+        "name": "SERVER 3",
+        "description": "cccccccccccc",
+        "modelType": "custom",
+        "modelUrl": "/Realidade_Aumentada_React/estatua.glb",
+        "position": "0 -0.1 0",
+        "rotation": "0 25 0",
+        "scale": "2.1 2.1 2.1",
+        "createdAt": "2026-01-08T19:21:31.719Z",
+        "fullUrl": "https://tonympcastro.github.io.ar_p3_cp/viewer?name=SERVER+3&description=cccccccccccc&modelType=custom&modelUrl=%2FRealidade_Aumentada_React%2Festatua.glb&position=0+-0.1+0&rotation=0+25+0&scale=2.1+2.1+2.1"
+    },
+    {
+        "id": 1767892781141,
+        "name": " Santos Dumont",
+        "description": "Alberto Santos Dumont nasceu no Brasil e, desde jovem, foi fascinado por máquinas e pelo sonho humano de voar. Seu interesse pela aviação começou ainda na Europa, onde estudou ciência e engenharia.\n\nEm 1906, Santos Dumont fez história ao pilotar o 14-Bis, o primeiro avião a decolar sozinho diante do público, em Paris, provando que o voo controlado era possível.\n\nReconhecido como o Pai da Aviação, Santos Dumont deixou um legado de inovação e inspiração, defendendo que o conhecimento científico deveria servir ao progresso da humanidade.",
+        "modelType": "custom",
+        "modelUrl": "/Realidade_Aumentada_React/estatua.glb",
+        "position": "0 0 0",
+        "rotation": "0 0 0",
+        "scale": "2.1 2.1 2.1",
+        "createdAt": "2026-01-08T19:21:41.081Z",
+        "fullUrl": "https://tonympcastro.github.io.ar_p3_cp/viewer?name=+Santos+Dumont&description=Alberto+Santos+Dumont+nasceu+no+Brasil+e%2C+desde+jovem%2C+foi+fascinado+por+m%C3%A1quinas+e+pelo+sonho+humano+de+voar.+Seu+interesse+pela+avia%C3%A7%C3%A3o+come%C3%A7ou+ainda+na+Europa%2C+onde+estudou+ci%C3%AAncia+e+engenharia.%0A%0AEm+1906%2C+Santos+Dumont+fez+hist%C3%B3ria+ao+pilotar+o+14-Bis%2C+o+primeiro+avi%C3%A3o+a+decolar+sozinho+diante+do+p%C3%BAblico%2C+em+Paris%2C+provando+que+o+voo+controlado+era+poss%C3%ADvel.%0A%0AReconhecido+como+o+Pai+da+Avia%C3%A7%C3%A3o%2C+Santos+Dumont+deixou+um+legado+de+inova%C3%A7%C3%A3o+e+inspira%C3%A7%C3%A3o%2C+defendendo+que+o+conhecimento+cient%C3%ADfico+deveria+servir+ao+progresso+da+humanidade.&modelType=custom&modelUrl=%2FRealidade_Aumentada_React%2Festatua.glb&position=0+0+0&rotation=0+0+0&scale=2.1+2.1+2.1"
+    },
+    {
+        "id": 1767896265570,
+        "name": "Cérebro",
+        "description": "ed",
+        "modelType": "custom",
+        "modelUrl": "/Realidade_Aumentada_React/human-brain.glb",
+        "position": "0 0.7 0",
+        "rotation": "0 270 0",
+        "scale": "1.6 1.6 1.6",
+        "createdAt": "2026-01-08T19:23:07.848Z",
+        "fullUrl": "https://tonympcastro.github.io.ar_p3_cp/viewer?name=C%C3%A9rebro&description=ed&modelType=custom&modelUrl=%2FRealidade_Aumentada_React%2Fhuman-brain.glb&position=0+0.7+0&rotation=0+270+0&scale=1.6+1.6+1.6"
+    }
+]

@@ -246,6 +246,7 @@ const CreatorPanel = () => {
               <option value="sphere">Esfera Genérica</option>
               <option value="cylinder">Cilindro</option>
               <option value="cone">Cone</option>
+              <option value="pyramid">Pirâmide</option>
               <option value="torus">Rosquinha (Torus)</option>
               <option value="custom">Meu Modelo 3D (.glb)</option>
               {/* Futuramente aqui entrariam modelos GLB reais */}

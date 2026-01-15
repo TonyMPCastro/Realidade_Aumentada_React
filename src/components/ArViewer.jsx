@@ -75,6 +75,39 @@ const ArViewer = () => {
     };
   }, []);
 
+  // Fix para o problema de "Zoom" e "Grande Angular" em smartphones
+  useEffect(() => {
+    const fixARVideo = () => {
+      const video = document.querySelector('#arjs-video');
+      const container = document.querySelector('#camera-frame');
+      
+      if (video && container) {
+        const rect = container.getBoundingClientRect();
+        // Ajusta o vídeo exatamente ao tamanho e posição do quadro superior
+        video.style.setProperty('width', `${rect.width}px`, 'important');
+        video.style.setProperty('height', `${rect.height}px`, 'important');
+        video.style.setProperty('position', 'fixed', 'important');
+        video.style.setProperty('top', `${rect.top}px`, 'important');
+        video.style.setProperty('left', `${rect.left}px`, 'important');
+        video.style.setProperty('object-fit', 'cover', 'important');
+        video.style.setProperty('margin-left', '0px', 'important');
+        video.style.setProperty('margin-top', '0px', 'important');
+        video.style.zIndex = '0'; // Garante que fique atrás dos elementos de UI, mas visível
+      }
+    };
+
+    // Monitora a inserção do vídeo pelo AR.js no DOM
+    const observer = new MutationObserver(fixARVideo);
+    observer.observe(document.body, { childList: true });
+    
+    const interval = setInterval(fixARVideo, 1000); // Reforço periódico
+
+    return () => {
+      observer.disconnect();
+      clearInterval(interval);
+    };
+  }, []);
+
   // Registra o componente A-Frame dentro do useEffect para garantir que AFRAME esteja carregado
   useEffect(() => {
     if (typeof window !== 'undefined' && window.AFRAME) {
@@ -265,146 +298,158 @@ const ArViewer = () => {
   };
 
   return (
-    <div style={{ margin: 0, overflow: 'hidden', height: '100vh', width: '100vw' }}>
+    <div className="d-flex flex-column align-items-center" style={{ height: '100dvh', width: '100vw', backgroundColor: 'transparent', overflow: 'hidden' }}>
       
-      {/* Interface Overlay (UI sobreposta ao AR) */}
-      <div className="ar-ui-overlay" style={{
-        position: 'absolute', 
-        bottom: '10px', 
-        left: '50%', 
-        transform: 'translateX(-50%)', 
-        width: 'auto',
-        minWidth: '220px',
-        zIndex: 10,
-        backgroundColor: 'rgba(255, 255, 255, 0.85)',
-        padding: '8px 12px',
-        borderRadius: '12px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-        textAlign: 'center',
-        fontSize: '0.9rem'
-      }}>
-        <h3 className="h6 mb-2" style={{ fontWeight: 'bold', margin: 0 }}>{character.name}</h3>
-
-        {/* Controles de Rotação e Câmera em linha única */}
-        <div className="d-flex justify-content-center align-items-center gap-2 mb-1">
-          <button 
-            className={`btn btn-sm ${interactionMode === 'move' ? 'btn-primary' : 'btn-outline-primary'} py-0 px-2 fw-bold`} 
-            onClick={() => setInteractionMode(prev => prev === 'rotate' ? 'move' : 'rotate')}
-            title={interactionMode === 'move' ? 'Mudar para Girar' : 'Mudar para Mover'}
-          >
-            {interactionMode === 'move' ? '✥ Mover' : '↻ Girar'}
-          </button>
-          <div className="vr mx-1"></div>
-          <button className="btn btn-sm btn-outline-secondary py-0 px-2" onClick={() => handleManualRotation('y', -1)} title="Girar Esquerda">↺</button>
-          <button className="btn btn-sm btn-outline-secondary py-0 px-2" onClick={() => handleManualRotation('x', -1)} title="Inclinar Cima">↑</button>
-          <button className="btn btn-sm btn-outline-secondary py-0 px-2" onClick={() => handleManualRotation('x', 1)} title="Inclinar Baixo">↓</button>
-          <button className="btn btn-sm btn-outline-secondary py-0 px-2" onClick={() => handleManualRotation('y', 1)} title="Girar Direita">↻</button>
+      {/* Quadro da Câmera (Topo) */}
+      <div id="camera-frame" style={{ width: '100%', flex: '1', position: 'relative', overflow: 'hidden', backgroundColor: 'transparent', touchAction: 'none' }}>
+        <a-scene 
+          key={facingMode}
+          embedded 
+          arjs={`sourceType: webcam; debugUIEnabled: false; detectionMode: mono; facingMode: ${facingMode}; sourceWidth: 1280; sourceHeight: 720; displayWidth: 1280; displayHeight: 720;`} 
+          renderer="antialias: true; alpha: true; precision: medium;" 
+          vr-mode-ui="enabled: false"
+          id="scene"
+          style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, zIndex: 1 }}
+        >
+          <a-light type="ambient" color="#ffffff" intensity="1"></a-light>
+          <a-light type="directional" color="#ffffff" intensity="1.5" position="1 1 1"></a-light>
           
-          <button className="btn btn-sm btn-dark py-0 px-2 ms-1" onClick={toggleCamera} title="Trocar Câmera">
-            {facingMode === 'environment' ? '🤳' : '📷'}
-          </button>
-        </div>
-        
-        {/* Feedback visual dinâmico sobre o rastreamento do marcador */}
-        <div style={{ 
-          display: 'inline-block',
-          padding: '2px 10px',
-          borderRadius: '20px',
-          fontSize: '0.75rem',
-          fontWeight: '600',
-          backgroundColor: markerFound ? '#d1e7dd' : '#fff3cd',
-          color: markerFound ? '#0f5132' : '#664d03',
-          border: markerFound ? '1px solid #badbcc' : '1px solid #ffecb5'
-        }}>
-          {markerFound ? '✅ Marcador Hiro Detectado!' : '🔍 Procurando Marcador Hiro...'}
+          <a-marker 
+            preset="hiro" 
+            ref={markerRef}
+            smooth="true"
+            smoothCount="5"
+          >
+            <a-entity position={character.position} rotation={character.rotation} scale={character.scale}>
+              <a-entity id="model-container" ref={modelContainerRef} mouse-manipulation={`mode: ${interactionMode}`}>
+                {character.modelType === 'box' && (
+                  <a-entity>
+                    <a-box material="color: blue; opacity: 0.8"></a-box>
+                    <a-box wireframe="true" material="color: #ffffff"></a-box>
+                    {/* Vértices (Pontos de destaque) */}
+                    <a-sphere radius="0.05" position="0.5 0.5 0.5" color="yellow"></a-sphere>
+                    <a-sphere radius="0.05" position="0.5 0.5 -0.5" color="yellow"></a-sphere>
+                    <a-sphere radius="0.05" position="0.5 -0.5 0.5" color="yellow"></a-sphere>
+                    <a-sphere radius="0.05" position="0.5 -0.5 -0.5" color="yellow"></a-sphere>
+                    <a-sphere radius="0.05" position="-0.5 0.5 0.5" color="yellow"></a-sphere>
+                    <a-sphere radius="0.05" position="-0.5 0.5 -0.5" color="yellow"></a-sphere>
+                    <a-sphere radius="0.05" position="-0.5 -0.5 0.5" color="yellow"></a-sphere>
+                    <a-sphere radius="0.05" position="-0.5 -0.5 -0.5" color="yellow"></a-sphere>
+                  </a-entity>
+                )}
+                {character.modelType === 'sphere' && (
+                  <a-entity>
+                    <a-sphere radius="0.5" material="color: red; opacity: 0.8"></a-sphere>
+                    <a-sphere radius="0.5" wireframe="true" material="color: #ffffff"></a-sphere>
+                  </a-entity>
+                )}
+                {character.modelType === 'cylinder' && (
+                  <a-entity>
+                    <a-cylinder radius="0.5" height="1" material="color: orange; opacity: 0.8"></a-cylinder>
+                    <a-cylinder radius="0.5" height="1" wireframe="true" material="color: #ffffff"></a-cylinder>
+                    <a-sphere radius="0.05" position="0 0.5 0" color="yellow"></a-sphere>
+                    <a-sphere radius="0.05" position="0 -0.5 0" color="yellow"></a-sphere>
+                  </a-entity>
+                )}
+                {character.modelType === 'cone' && (
+                  <a-entity>
+                    <a-cone radius-bottom="0.5" radius-top="0" height="1" material="color: green; opacity: 0.8"></a-cone>
+                    <a-cone radius-bottom="0.5" radius-top="0" height="1" wireframe="true" material="color: #ffffff"></a-cone>
+                    <a-sphere radius="0.05" position="0 0.5 0" color="yellow"></a-sphere>
+                    <a-sphere radius="0.05" position="0 -0.5 0" color="yellow"></a-sphere>
+                  </a-entity>
+                )}
+                {character.modelType === 'pyramid' && (
+                  <a-entity>
+                    <a-cone segments-radial="4" radius-bottom="0.7" height="1" material="color: #FFD700; opacity: 0.8"></a-cone>
+                    <a-cone segments-radial="4" radius-bottom="0.7" height="1" wireframe="true" material="color: #ffffff"></a-cone>
+                    {/* Vértices da Pirâmide */}
+                    <a-sphere radius="0.05" position="0 0.5 0" color="yellow"></a-sphere>
+                    <a-sphere radius="0.05" position="0.5 -0.5 0.5" color="yellow"></a-sphere>
+                    <a-sphere radius="0.05" position="0.5 -0.5 -0.5" color="yellow"></a-sphere>
+                    <a-sphere radius="0.05" position="-0.5 -0.5 0.5" color="yellow"></a-sphere>
+                    <a-sphere radius="0.05" position="-0.5 -0.5 -0.5" color="yellow"></a-sphere>
+                  </a-entity>
+                )}
+                {character.modelType === 'torus' && (
+                  <a-entity>
+                    <a-torus radius="0.4" radius-tubular="0.1" material="color: purple; opacity: 0.8"></a-torus>
+                    <a-torus radius="0.4" radius-tubular="0.1" wireframe="true" material="color: #ffffff"></a-torus>
+                  </a-entity>
+                )}
+                {character.modelType === 'custom' && <a-entity ref={customModelRef} gltf-model={character.modelUrl}></a-entity>}
+              </a-entity>
+            </a-entity>
+
+            {/* Texto flutuante ao lado do objeto */}
+            <a-entity position={getTextPosition()} rotation="-90 0 0">
+              <a-text 
+                value={character.name} 
+                width="6" 
+                align="center" 
+                color="#ffffff"
+              ></a-text>
+            </a-entity>
+          </a-marker>
+          <a-entity camera="near: 0.01; far: 1000;"></a-entity>
+        </a-scene>
+
+        {/* Badge de Status flutuando no quadro da câmera */}
+        <div style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 10 }}>
+          <span className={`badge ${markerFound ? 'bg-success' : 'bg-warning text-dark'}`}>
+            {markerFound ? '✅ Hiro Detectado' : '🔍 Procure o Hiro'}
+          </span>
         </div>
       </div>
 
-      {/* Cena A-Frame AR */}
-      {/* 
-          IMPORTANTE: 
-          - detectionMode: mono -> Otimizado para marcadores como Hiro.
-          - vr-mode-ui="enabled: false": Remove o botão VR que atrapalha em AR.
-      */}
-      <a-scene 
-        key={facingMode}
-        embedded 
-        arjs={`sourceType: webcam; debugUIEnabled: false; detectionMode: mono; facingMode: ${facingMode}; sourceWidth:1280; sourceHeight:720; displayWidth:1280; displayHeight:720;`} 
-        renderer="antialias: true; alpha: true; precision: medium;" 
-        vr-mode-ui="enabled: false"
-        id="scene"
+      {/* Painel de Ações (Baixo) */}
+      <div
+        className="bg-white p-3 shadow-lg w-100" 
+        style={{ 
+          maxWidth: '600px',
+          flex: '0 0 auto', 
+          maxHeight: '35vh', 
+          borderRadius: '20px 20px 0 0', 
+          zIndex: 20 
+        }}
       >
+        <h2 className="h5 fw-bold mb-3">{character.name}</h2>
         
-        {/* Luzes: Essenciais para modelos GLB externos aparecerem corretamente */}
-        <a-light type="ambient" color="#ffffff" intensity="1"></a-light>
-        <a-light type="directional" color="#ffffff" intensity="1.5" position="1 1 1"></a-light>
-        
-        {/* Marcador Hiro */}
-        <a-marker 
-          preset="hiro" 
-          ref={markerRef}
-          smooth="true"
-          smoothCount="5"
-          smoothTolerance="0.01"
-          smoothThreshold="2"
-        >
-          {/* Pivot de Transformação: Isola a posição base da rotação interativa */}
-          <a-entity
-            position={character.position}
-            rotation={character.rotation}
-            scale={character.scale}
+        <div className="d-grid gap-2">
+          <button 
+            className="btn btn-primary d-flex align-items-center justify-content-center gap-2" 
+            onClick={() => setInteractionMode(prev => prev === 'rotate' ? 'move' : 'rotate')}
           >
-            <a-entity 
-              id="model-container" 
-              ref={modelContainerRef} 
-              mouse-manipulation={`mode: ${interactionMode}`}
-            >
-            
-          {/* Renderização condicional do modelo baseada na escolha do professor */}
-          {character.modelType === 'box' && (
-            <a-box material="color: blue; opacity: 0.8"></a-box>
-          )}
-          {character.modelType === 'sphere' && (
-            <a-sphere radius="0.5" material="color: red; opacity: 0.8"></a-sphere>
-          )}
-          {character.modelType === 'cylinder' && (
-            <a-cylinder radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>
-          )}
-          {character.modelType === 'cone' && (
-            <a-cone radius-bottom="0.5" radius-top="0" height="1.5" color="green"></a-cone>
-          )}
-          {character.modelType === 'torus' && (
-            <a-torus radius="0.5" radius-tubular="0.1" color="purple"></a-torus>
-          )}
+            {interactionMode === 'move' ? '✥ Modo Mover Ativo' : '↻ Modo Girar Ativo'}
+          </button>
           
-          {/* Modelo Customizado (.glb) */}
-          {character.modelType === 'custom' && (
-            <a-entity 
-              ref={customModelRef}
-              gltf-model={character.modelUrl} 
-            ></a-entity>
-          )}
-            </a-entity>
-          </a-entity>
+          <div className="d-flex gap-2">
+            <button className="btn btn-outline-secondary flex-grow-1" onClick={() => handleManualRotation('y', -1)}>↺</button>
+            <button className="btn btn-outline-secondary flex-grow-1" onClick={() => handleManualRotation('y', 1)}>↻</button>
+            <button className="btn btn-dark" onClick={toggleCamera}>
+              {facingMode === 'environment' ? 'Inverter Câmera 🤳' : 'Câmera Traseira 📷'}
+            </button>
+          </div>
+        </div>
 
-          {/* Card de Descrição Estilizado (Tipo RPG/Pokemon) */}
-          <a-entity position={getTextPosition()} rotation="-90 0 0">
-             {/* Fundo Traseiro (borda) */}
-           
-            {/* Título */}
-            <a-text  material="shader: flat" 
-              value={character.name} width="8.7"
-              align="center" color="#ecf0f1" 
-              position="0 0.5 0.1" scale="0.75 0.75 0.75"
-            ></a-text>
-
-        </a-entity>
-
-        </a-marker>
-
-        {/* Câmera com 'near' ajustado para 0.01: impede que o objeto suma ao chegar perto da lente */}
-        <a-entity camera="near: 0.01; far: 1000;"></a-entity>
-      </a-scene>
+        {/* Seletor de Modelos em Tempo de Execução */}
+        <div className="mt-3">
+          <label className="small fw-bold text-muted mb-1 d-block">Trocar Objeto:</label>
+          <div className="d-flex gap-1 overflow-auto pb-1">
+            <button className={`btn btn-sm ${character.modelType === 'box' ? 'btn-dark' : 'btn-outline-dark'}`} onClick={() => setCharacter(prev => ({...prev, modelType: 'box'}))}>Cubo</button>
+            <button className={`btn btn-sm ${character.modelType === 'sphere' ? 'btn-dark' : 'btn-outline-dark'}`} onClick={() => setCharacter(prev => ({...prev, modelType: 'sphere'}))}>Esfera</button>
+            <button className={`btn btn-sm ${character.modelType === 'cylinder' ? 'btn-dark' : 'btn-outline-dark'}`} onClick={() => setCharacter(prev => ({...prev, modelType: 'cylinder'}))}>Cilindro</button>
+            <button className={`btn btn-sm ${character.modelType === 'cone' ? 'btn-dark' : 'btn-outline-dark'}`} onClick={() => setCharacter(prev => ({...prev, modelType: 'cone'}))}>Cone</button>
+            <button className={`btn btn-sm ${character.modelType === 'pyramid' ? 'btn-dark' : 'btn-outline-dark'}`} onClick={() => setCharacter(prev => ({...prev, modelType: 'pyramid'}))}>Pirâmide</button>
+            <button className={`btn btn-sm ${character.modelType === 'torus' ? 'btn-dark' : 'btn-outline-dark'}`} onClick={() => setCharacter(prev => ({...prev, modelType: 'torus'}))}>Torus</button>
+            {searchParams.get('modelUrl') && (
+              <button className={`btn btn-sm ${character.modelType === 'custom' ? 'btn-dark' : 'btn-outline-dark'}`} onClick={() => setCharacter(prev => ({...prev, modelType: 'custom'}))}>
+                Original 3D
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

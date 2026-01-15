@@ -57,6 +57,19 @@ const ArViewer = () => {
 
   // Limpeza do AR.js ao sair da tela (Desmontar componente)
   useEffect(() => {
+    // Previne que o AR.js/A-Frame altere o layout global de forma destrutiva no mobile
+    const preventHijack = () => {
+      document.documentElement.style.setProperty('overflow', 'hidden', 'important');
+      document.body.style.setProperty('overflow', 'hidden', 'important');
+      document.body.style.setProperty('position', 'fixed', 'important');
+      document.body.style.setProperty('top', '0', 'important');
+      document.body.style.setProperty('left', '0', 'important');
+      document.body.style.setProperty('margin', '0', 'important');
+      document.body.style.setProperty('width', '100%', 'important');
+      document.body.style.setProperty('height', '100%', 'important');
+    };
+    preventHijack();
+
     return () => {
       // Remove elementos de vídeo injetados pelo AR.js no body
       const videos = document.querySelectorAll('video');
@@ -66,12 +79,14 @@ const ArViewer = () => {
         }
         v.remove();
       });
-      // Restaura o scroll da página que o AR.js bloqueia
-      document.body.style.overflow = '';
-      document.body.style.width = '';
-      document.body.style.height = '';
-      document.body.style.margin = '';
-      document.body.style.position = '';
+      
+      document.documentElement.style.removeProperty('overflow');
+      document.body.style.removeProperty('overflow');
+      document.body.style.removeProperty('position');
+      document.body.style.removeProperty('top');
+      document.body.style.removeProperty('margin');
+      document.body.style.removeProperty('width');
+      document.body.style.removeProperty('height');
     };
   }, []);
 
@@ -79,20 +94,28 @@ const ArViewer = () => {
   useEffect(() => {
     const fixARVideo = () => {
       const video = document.querySelector('#arjs-video');
+      const canvas = document.querySelector('.a-canvas');
       const container = document.querySelector('#camera-frame');
       
-      if (video && container) {
+      if (container) {
         const rect = container.getBoundingClientRect();
-        // Ajusta o vídeo exatamente ao tamanho e posição do quadro superior
-        video.style.setProperty('width', `${rect.width}px`, 'important');
-        video.style.setProperty('height', `${rect.height}px`, 'important');
-        video.style.setProperty('position', 'fixed', 'important');
-        video.style.setProperty('top', `${rect.top}px`, 'important');
-        video.style.setProperty('left', `${rect.left}px`, 'important');
-        video.style.setProperty('object-fit', 'cover', 'important');
-        video.style.setProperty('margin-left', '0px', 'important');
-        video.style.setProperty('margin-top', '0px', 'important');
-        video.style.zIndex = '0'; // Garante que fique atrás dos elementos de UI, mas visível
+        
+        if (video) {
+          video.style.setProperty('width', `${rect.width}px`, 'important');
+          video.style.setProperty('height', `${rect.height}px`, 'important');
+          video.style.setProperty('position', 'fixed', 'important');
+          video.style.setProperty('top', `${rect.top}px`, 'important');
+          video.style.setProperty('left', `${rect.left}px`, 'important');
+          video.style.setProperty('object-fit', 'cover', 'important');
+          video.style.setProperty('margin-left', '0px', 'important');
+          video.style.setProperty('margin-top', '0px', 'important');
+          video.style.zIndex = '0';
+        }
+
+        if (canvas) {
+          canvas.style.setProperty('width', `${rect.width}px`, 'important');
+          canvas.style.setProperty('height', `${rect.height}px`, 'important');
+        }
       }
     };
 
@@ -100,7 +123,7 @@ const ArViewer = () => {
     const observer = new MutationObserver(fixARVideo);
     observer.observe(document.body, { childList: true });
     
-    const interval = setInterval(fixARVideo, 1000); // Reforço periódico
+    const interval = setInterval(fixARVideo, 500); // Reforço periódico mais frequente
 
     return () => {
       observer.disconnect();
@@ -299,13 +322,27 @@ const ArViewer = () => {
 
   return (
     <div className="d-flex flex-column align-items-center" style={{ height: '100dvh', width: '100vw', backgroundColor: 'transparent', overflow: 'hidden' }}>
+      <style>
+        {`
+          .a-canvas {
+            width: 100% !important;
+            height: 100% !important;
+            top: 0 !important;
+            left: 0 !important;
+          }
+          #arjs-video {
+            transition: none !important;
+          }
+          .a-enter-vr { display: none; }
+        `}
+      </style>
       
       {/* Quadro da Câmera (Topo) */}
       <div id="camera-frame" style={{ width: '100%', flex: '1', position: 'relative', overflow: 'hidden', backgroundColor: 'transparent', touchAction: 'none' }}>
         <a-scene 
           key={facingMode}
           embedded 
-          arjs={`sourceType: webcam; debugUIEnabled: false; detectionMode: mono; facingMode: ${facingMode}; sourceWidth: 1280; sourceHeight: 720; displayWidth: 1280; displayHeight: 720;`} 
+          arjs={`sourceType: webcam; debugUIEnabled: false; detectionMode: mono; facingMode: ${facingMode};`} 
           renderer="antialias: true; alpha: true; precision: medium;" 
           vr-mode-ui="enabled: false"
           id="scene"

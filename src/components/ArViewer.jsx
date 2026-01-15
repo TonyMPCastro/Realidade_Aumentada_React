@@ -24,7 +24,7 @@ const ArViewer = () => {
         description,
         modelType,
         modelUrl: finalUrl || '/Duck.glb',
-        position: position || '0 0.5 0',
+        position: position || '0 0.5 0', // Reduzido para evitar proximidade excessiva com a câmera
         rotation: rotation || '0 0 0',
         scale: scale || '1 1 1'
       };
@@ -43,6 +43,7 @@ const ArViewer = () => {
   });
   
   const [markerFound, setMarkerFound] = useState(false);
+  const [interactionMode, setInteractionMode] = useState('rotate'); // 'rotate' ou 'move'
   const markerRef = useRef(null);
   const customModelRef = useRef(null);
   const modelContainerRef = useRef(null);
@@ -79,7 +80,10 @@ const ArViewer = () => {
     if (typeof window !== 'undefined' && window.AFRAME) {
       if (!window.AFRAME.components['mouse-manipulation']) {
         window.AFRAME.registerComponent('mouse-manipulation', {
-          schema: { speed: { default: 5 } }, // Aumentei a velocidade
+          schema: { 
+            speed: { default: 5 },
+            mode: { default: 'rotate' } 
+          },
           init: function () {
             this.ifMouseDown = false;
             this.x_cord = 0;
@@ -113,6 +117,7 @@ const ArViewer = () => {
             document.removeEventListener('touchmove', this.onTouchMove);
           },
           onMouseDown: function (evt) {
+            if (evt.target.closest('.ar-ui-overlay')) return;
             this.ifMouseDown = true;
             this.x_cord = evt.clientX;
             this.y_cord = evt.clientY;
@@ -121,17 +126,31 @@ const ArViewer = () => {
             this.ifMouseDown = false;
           },
           onMouseMove: function (evt) {
-            if (this.ifMouseDown) {
-              // evt.preventDefault(); // Removido para permitir interação com UI se necessário
+            if (this.ifMouseDown && evt.clientX !== undefined) {
               var temp_x = evt.clientX - this.x_cord;
               var temp_y = evt.clientY - this.y_cord;
-              this.el.object3D.rotation.y += temp_x * this.data.speed / 1000;
-              this.el.object3D.rotation.x += temp_y * this.data.speed / 1000;
+              
+              // Ajuste de sensibilidade para movimentos mais suaves
+              const sensitivity = this.data.speed / 1000;
+              
+              if (this.data.mode === 'move') {
+                // Translação: X (horizontal) e Y (vertical/altura)
+                this.el.object3D.position.x += temp_x * sensitivity;
+                this.el.object3D.position.y -= temp_y * sensitivity;
+              } else {
+                // Rotação
+                this.el.object3D.rotation.y += temp_x * sensitivity;
+                let newX = this.el.object3D.rotation.x + (temp_y * sensitivity);
+                const limit = Math.PI / 4;
+                this.el.object3D.rotation.x = Math.max(-limit, Math.min(limit, newX));
+              }
+
               this.x_cord = evt.clientX;
               this.y_cord = evt.clientY;
             }
           },
           onTouchStart: function (evt) {
+            if (evt.target.closest('.ar-ui-overlay')) return;
             this.ifMouseDown = true;
             this.x_cord = evt.touches[0].clientX;
             this.y_cord = evt.touches[0].clientY;
@@ -140,12 +159,23 @@ const ArViewer = () => {
             this.ifMouseDown = false;
           },
           onTouchMove: function (evt) {
-            if (this.ifMouseDown) {
+            if (this.ifMouseDown && evt.touches && evt.touches[0]) {
               evt.preventDefault(); // Importante para não rolar a tela
               var temp_x = evt.touches[0].clientX - this.x_cord;
               var temp_y = evt.touches[0].clientY - this.y_cord;
-              this.el.object3D.rotation.y += temp_x * this.data.speed / 1000;
-              this.el.object3D.rotation.x += temp_y * this.data.speed / 1000;
+              
+              const sensitivity = this.data.speed / 1000;
+
+              if (this.data.mode === 'move') {
+                this.el.object3D.position.x += temp_x * sensitivity;
+                this.el.object3D.position.y -= temp_y * sensitivity;
+              } else {
+                this.el.object3D.rotation.y += temp_x * sensitivity;
+                let newX = this.el.object3D.rotation.x + (temp_y * sensitivity);
+                const limit = Math.PI / 4;
+                this.el.object3D.rotation.x = Math.max(-limit, Math.min(limit, newX));
+              }
+              
               this.x_cord = evt.touches[0].clientX;
               this.y_cord = evt.touches[0].clientY;
             }
@@ -226,18 +256,19 @@ const ArViewer = () => {
     const scale = character.scale ? character.scale.split(' ').map(Number) : [1, 1, 1];
     
     const objX = pos[0] || 0;
+    const objY = pos[1] || 0;
     const objZ = pos[2] || 0;
     const scaleX = scale[0] || 1;
 
     // Posiciona à direita: Posição X do objeto + Metade da sua Largura (Escala) + Margem fixa (1.2)
-    return `${objX + (scaleX / 2) + 1.2} 0 ${objZ}`;
+    return `${objX + (scaleX / 2) + 1.2} ${objY} ${objZ}`;
   };
 
   return (
     <div style={{ margin: 0, overflow: 'hidden', height: '100vh', width: '100vw' }}>
       
       {/* Interface Overlay (UI sobreposta ao AR) */}
-      <div style={{
+      <div className="ar-ui-overlay" style={{
         position: 'absolute', 
         bottom: '10px', 
         left: '50%', 
@@ -256,6 +287,14 @@ const ArViewer = () => {
 
         {/* Controles de Rotação e Câmera em linha única */}
         <div className="d-flex justify-content-center align-items-center gap-2 mb-1">
+          <button 
+            className={`btn btn-sm ${interactionMode === 'move' ? 'btn-primary' : 'btn-outline-primary'} py-0 px-2 fw-bold`} 
+            onClick={() => setInteractionMode(prev => prev === 'rotate' ? 'move' : 'rotate')}
+            title={interactionMode === 'move' ? 'Mudar para Girar' : 'Mudar para Mover'}
+          >
+            {interactionMode === 'move' ? '✥ Mover' : '↻ Girar'}
+          </button>
+          <div className="vr mx-1"></div>
           <button className="btn btn-sm btn-outline-secondary py-0 px-2" onClick={() => handleManualRotation('y', -1)} title="Girar Esquerda">↺</button>
           <button className="btn btn-sm btn-outline-secondary py-0 px-2" onClick={() => handleManualRotation('x', -1)} title="Inclinar Cima">↑</button>
           <button className="btn btn-sm btn-outline-secondary py-0 px-2" onClick={() => handleManualRotation('x', 1)} title="Inclinar Baixo">↓</button>
@@ -284,15 +323,14 @@ const ArViewer = () => {
       {/* Cena A-Frame AR */}
       {/* 
           IMPORTANTE: 
-          - arjs="sourceType: webcam;": Ativa a webcam.
+          - detectionMode: mono -> Otimizado para marcadores como Hiro.
           - vr-mode-ui="enabled: false": Remove o botão VR que atrapalha em AR.
-          - renderer="logarithmicDepthBuffer: true;": Melhora a renderização de modelos 3D sobrepostos.
       */}
       <a-scene 
         key={facingMode}
         embedded 
-        arjs={`sourceType: webcam; videoTexture: true; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3; sourceParameters: { facingMode: "${facingMode}" };`} 
-        renderer="logarithmicDepthBuffer: true; alpha: true;" 
+        arjs={`sourceType: webcam; debugUIEnabled: false; detectionMode: mono; facingMode: ${facingMode};`} 
+        renderer="antialias: true; alpha: true; precision: medium;" 
         vr-mode-ui="enabled: false"
         id="scene"
       >
@@ -303,18 +341,17 @@ const ArViewer = () => {
         
         {/* Marcador Hiro */}
         <a-marker preset="hiro" ref={markerRef}>
-          {/* 
-             Aplicamos a posição, rotação e escala definidas no CreatorPanel aqui.
-             O mouse-manipulation permitirá girar a partir dessa rotação inicial.
-          */}
-          <a-entity 
-            id="model-container" 
-            ref={modelContainerRef} 
-            mouse-manipulation
+          {/* Pivot de Transformação: Isola a posição base da rotação interativa */}
+          <a-entity
             position={character.position}
             rotation={character.rotation}
             scale={character.scale}
           >
+            <a-entity 
+              id="model-container" 
+              ref={modelContainerRef} 
+              mouse-manipulation={`mode: ${interactionMode}`}
+            >
             
           {/* Renderização condicional do modelo baseada na escolha do professor */}
           {character.modelType === 'box' && (
@@ -340,6 +377,7 @@ const ArViewer = () => {
               gltf-model={character.modelUrl} 
             ></a-entity>
           )}
+            </a-entity>
           </a-entity>
 
           {/* Card de Descrição Estilizado (Tipo RPG/Pokemon) */}
@@ -357,7 +395,8 @@ const ArViewer = () => {
 
         </a-marker>
 
-        <a-entity camera></a-entity>
+        {/* Câmera com 'near' ajustado para 0.01: impede que o objeto suma ao chegar perto da lente */}
+        <a-entity camera="near: 0.01; far: 1000;"></a-entity>
       </a-scene>
     </div>
   );

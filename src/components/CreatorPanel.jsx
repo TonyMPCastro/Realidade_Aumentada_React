@@ -9,7 +9,7 @@ const CreatorPanel = () => {
     description: '',
     modelType: 'box', // Placeholder simples
     modelUrl: '', // URL para modelo customizado
-    position: '0 0.5 0',
+    position: '0 0.5 0', // Alinhado com o visualizador para consistência
     rotation: '0 0 0',
     scale: '1 1 1'
   });

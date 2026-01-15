@@ -1,32 +1,64 @@
-# Gerenciador de Experiências AR
+# Sistema de Gerenciamento e Visualização de Experiências em Realidade Aumentada (AR)
 
-Este projeto é uma aplicação web para criar, gerenciar e visualizar experiências de Realidade Aumentada (AR) utilizando **React**, **A-Frame** e **AR.js**.
+Este projeto consiste em uma plataforma web desenvolvida para facilitar a criação, o gerenciamento e a visualização de conteúdos em Realidade Aumentada baseada em marcadores. A aplicação foi concebida com foco em contextos educacionais, permitindo que instrutores criem narrativas interativas associadas a modelos 3D sem a necessidade de conhecimentos avançados em programação.
 
-## 🚀 Funcionalidades
+## 1. Visão Geral
 
-- **Painel do Criador**: Interface para criar cenas AR, definir modelos 3D (primitivos ou GLB), posicionamento e narrativas.
-- **Visualizador AR**: Componente que utiliza a câmera para renderizar o conteúdo sobre um marcador (Hiro).
-- **Persistência**: Salva as experiências em `localStorage` ou em arquivo JSON local.
-- **QR Code**: Gera QR Codes para compartilhamento rápido das experiências.
+A solução é dividida em dois módulos principais:
+*   **Painel do Criador**: Uma interface administrativa (CRUD) onde o usuário define parâmetros como nome do personagem, narrativa histórica, tipo de modelo 3D (primitivos ou arquivos `.glb` customizados), além de ajustes finos de escala, rotação e posição.
+*   **Visualizador AR**: Um ambiente de execução que utiliza a API de câmera do navegador para rastrear o marcador "Hiro" e renderizar o conteúdo configurado em tempo real.
 
-## 🛠️ Tecnologias
+## 2. Arquitetura e Tecnologias
 
-- React
-- Vite
-- A-Frame
-- AR.js
-- Bootstrap
+A stack tecnológica foi selecionada visando portabilidade e baixo overhead de execução:
 
-## 📦 Como rodar localmente
+*   **Frontend**: React.js (Biblioteca base para interface e estado).
+*   **Renderização 3D**: A-Frame (Framework WebVR baseado em Entity-Component System).
+*   **Rastreamento de AR**: AR.js (Implementação de visão computacional para rastreamento de marcadores).
+*   **Estilização**: Bootstrap 5 (Layout responsivo).
+*   **Persistência**: LocalStorage e integração com File System Access API para manipulação de arquivos JSON locais.
 
-1. Instale as dependências:
-   ```bash
-   npm install
-   ```
+## 3. Funcionalidades Implementadas
 
-2. Inicie o servidor de desenvolvimento:
-   ```bash
-   npm run dev
-   ```
+*   **Editor de Cenas**: Preview em tempo real do objeto 3D antes da publicação.
+*   **Suporte a Modelos Customizados**: Carregamento dinâmico de arquivos GLTF/GLB.
+*   **Interatividade**: Manipulação do objeto via mouse ou touch (rotação e inclinação).
+*   **Distribuição**: Geração automática de QR Codes contendo os parâmetros da experiência via URL Query Strings.
+*   **Sincronização de Dados**: Capacidade de vincular um arquivo `ar_database.json` local para persistência persistente fora do cache do navegador.
 
-3. Acesse `http://localhost:5173`.
+## 4. Procedimentos de Execução
+
+### Pré-requisitos
+*   Node.js (versão 18 ou superior)
+*   NPM ou Yarn
+
+### Instalação
+1. Clone o repositório para sua máquina local.
+2. No diretório raiz, instale as dependências necessárias:
+```bash
+npm install
+```
+
+### Desenvolvimento
+Para iniciar o servidor de desenvolvimento com Hot Module Replacement (HMR):
+```bash
+npm run dev
+```
+O sistema estará acessível em `http://localhost:5173`.
+
+### Produção
+Para gerar o build otimizado para deploy:
+```bash
+npm run build
+```
+
+## 5. Utilização
+
+1.  Acesse o **Painel do Criador**.
+2.  Configure uma nova experiência (ex: Personagem Histórico).
+3.  Clique em "Salvar & Gerar".
+4.  Utilize o QR Code gerado para abrir a URL no dispositivo móvel.
+5.  Aponte a câmera para um marcador **Hiro** impresso ou digital para visualizar a experiência.
+
+---
+*Trabalho desenvolvido como parte do projeto de exploração de tecnologias imersivas com React.*

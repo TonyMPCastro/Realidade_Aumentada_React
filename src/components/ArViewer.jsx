@@ -48,6 +48,11 @@ const ArViewer = () => {
   const modelContainerRef = useRef(null);
   const [dialogues, setDialogues] = useState([]);
   const [currentLine, setCurrentLine] = useState(0);
+  const [facingMode, setFacingMode] = useState('environment');
+
+  const toggleCamera = () => {
+    setFacingMode(prev => (prev === 'environment' ? 'user' : 'environment'));
+  };
 
   // Limpeza do AR.js ao sair da tela (Desmontar componente)
   useEffect(() => {
@@ -234,61 +239,39 @@ const ArViewer = () => {
       {/* Interface Overlay (UI sobreposta ao AR) */}
       <div style={{
         position: 'absolute', 
-        bottom: '20px', 
+        bottom: '10px', 
         left: '50%', 
         transform: 'translateX(-50%)', 
-        width: '90%', 
+        width: 'auto',
+        minWidth: '220px',
         zIndex: 10,
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        padding: '15px',
-        borderRadius: '10px',
-        boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-        textAlign: 'center'
+        backgroundColor: 'rgba(255, 255, 255, 0.85)',
+        padding: '8px 12px',
+        borderRadius: '12px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+        textAlign: 'center',
+        fontSize: '0.9rem'
       }}>
-        <h3 className="h5">{character.name}</h3>
-        
-        {/* Área de Diálogo Sequencial */}
-        <div className="dialogue-box mb-3" style={{ minHeight: '50px' }}>          
-          {/* Controles de Navegação da História */}
-          {dialogues.length > 1 && (
-            <div className="d-flex justify-content-center gap-2 align-items-center mt-2">
-              <button 
-                className="btn btn-sm btn-outline-secondary" 
-                disabled={currentLine === 0}
-                onClick={() => setCurrentLine(prev => prev - 1)}
-              >
-                ⬅️ Anterior
-              </button>
-              <span className="badge bg-secondary">{currentLine + 1} / {dialogues.length}</span>
-              <button 
-                className="btn btn-sm btn-primary" 
-                disabled={currentLine === dialogues.length - 1}
-                onClick={() => setCurrentLine(prev => prev + 1)}
-              >
-                Próximo ➡️
-              </button>
-            </div>
-          )}
-        </div>
+        <h3 className="h6 mb-2" style={{ fontWeight: 'bold', margin: 0 }}>{character.name}</h3>
 
-        {/* Botões de Rotação Manual */}
-        <div className="d-flex flex-column gap-2 mb-3">
-          <div className="d-flex justify-content-center gap-2">
-            <button className="btn btn-sm btn-light border" onClick={() => handleManualRotation('x', -1)}>⬆️ Cima</button>
-            <button className="btn btn-sm btn-light border" onClick={() => handleManualRotation('x', 1)}>⬇️ Baixo</button>
-          </div>
-          <div className="d-flex justify-content-center gap-2">
-            <button className="btn btn-sm btn-light border" onClick={() => handleManualRotation('y', -1)}>↺ Esq.</button>
-            <button className="btn btn-sm btn-light border" onClick={() => handleManualRotation('y', 1)}>Dir. ↻</button>
-          </div>
+        {/* Controles de Rotação e Câmera em linha única */}
+        <div className="d-flex justify-content-center align-items-center gap-2 mb-1">
+          <button className="btn btn-sm btn-outline-secondary py-0 px-2" onClick={() => handleManualRotation('y', -1)} title="Girar Esquerda">↺</button>
+          <button className="btn btn-sm btn-outline-secondary py-0 px-2" onClick={() => handleManualRotation('x', -1)} title="Inclinar Cima">↑</button>
+          <button className="btn btn-sm btn-outline-secondary py-0 px-2" onClick={() => handleManualRotation('x', 1)} title="Inclinar Baixo">↓</button>
+          <button className="btn btn-sm btn-outline-secondary py-0 px-2" onClick={() => handleManualRotation('y', 1)} title="Girar Direita">↻</button>
+          
+          <button className="btn btn-sm btn-dark py-0 px-2 ms-1" onClick={toggleCamera} title="Trocar Câmera">
+            {facingMode === 'environment' ? '🤳' : '📷'}
+          </button>
         </div>
         
         {/* Feedback visual dinâmico sobre o rastreamento do marcador */}
         <div style={{ 
           display: 'inline-block',
-          padding: '5px 12px',
+          padding: '2px 10px',
           borderRadius: '20px',
-          fontSize: '0.85rem',
+          fontSize: '0.75rem',
           fontWeight: '600',
           backgroundColor: markerFound ? '#d1e7dd' : '#fff3cd',
           color: markerFound ? '#0f5132' : '#664d03',
@@ -306,8 +289,9 @@ const ArViewer = () => {
           - renderer="logarithmicDepthBuffer: true;": Melhora a renderização de modelos 3D sobrepostos.
       */}
       <a-scene 
+        key={facingMode}
         embedded 
-        arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;" 
+        arjs={`sourceType: webcam; videoTexture: true; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3; sourceParameters: { facingMode: "${facingMode}" };`} 
         renderer="logarithmicDepthBuffer: true; alpha: true;" 
         vr-mode-ui="enabled: false"
         id="scene"
@@ -368,15 +352,6 @@ const ArViewer = () => {
               align="center" color="#ecf0f1" 
               position="0 0.5 0.1" scale="0.75 0.75 0.75"
             ></a-text>
-            
-            {/* Texto Descritivo (Menor e Alinhado à Esquerda) */}
-            <a-text  material="shader: flat" 
-              value={dialogues[currentLine] || ''} 
-              align="left" anchor="left" color="#ecf0f1" 
-              position="-0.85 0.25 0.1" scale="0.6 0.6 0.6"
-              width="4.7" wrap-count="40" baseline="top"
-            ></a-text>
-            
 
         </a-entity>
 

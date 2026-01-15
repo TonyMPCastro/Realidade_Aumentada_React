@@ -195,7 +195,7 @@ const CreatorPanel = () => {
   };
 
   return (
-    <div className="container mt-5">
+    <div className="container mt-5" style={{ color: '#fff' }}>
       
       {/* Cabeçalho com controles de arquivo JSON */}
       <div className="d-flex justify-content-between align-items-center mb-4">

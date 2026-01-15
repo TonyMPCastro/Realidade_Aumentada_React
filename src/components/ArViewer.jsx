@@ -329,7 +329,7 @@ const ArViewer = () => {
       <a-scene 
         key={facingMode}
         embedded 
-        arjs={`sourceType: webcam; debugUIEnabled: false; detectionMode: mono; facingMode: ${facingMode};`} 
+        arjs={`sourceType: webcam; debugUIEnabled: false; detectionMode: mono; facingMode: ${facingMode}; sourceWidth:1280; sourceHeight:720; displayWidth:1280; displayHeight:720;`} 
         renderer="antialias: true; alpha: true; precision: medium;" 
         vr-mode-ui="enabled: false"
         id="scene"
@@ -340,7 +340,14 @@ const ArViewer = () => {
         <a-light type="directional" color="#ffffff" intensity="1.5" position="1 1 1"></a-light>
         
         {/* Marcador Hiro */}
-        <a-marker preset="hiro" ref={markerRef}>
+        <a-marker 
+          preset="hiro" 
+          ref={markerRef}
+          smooth="true"
+          smoothCount="5"
+          smoothTolerance="0.01"
+          smoothThreshold="2"
+        >
           {/* Pivot de Transformação: Isola a posição base da rotação interativa */}
           <a-entity
             position={character.position}

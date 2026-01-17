@@ -262,9 +262,9 @@ const CreatorPanel = () => {
                 name="modelUrl" 
                 value={formData.modelUrl} 
                 onChange={handleChange} 
-                placeholder="Ex: /meu_modelo.glb ou https://exemplo.com/modelo.glb"
+                placeholder="Ex: /coracao.glb ou https://exemplo.com/modelo.glb"
               />
-              <div className="form-text">O arquivo deve estar na pasta public ou ser uma URL externa acessível (CORS).</div>
+              <div className="form-text">Use /coracao.glb, /Duck.glb ou uma URL externa acessível (CORS).</div>
             </div>
           )}
 
@@ -305,7 +305,13 @@ const CreatorPanel = () => {
                   {formData.modelType === 'cone' && <a-cone radius-bottom="0.5" radius-top="0" height="1.5" color="green"></a-cone>}
                   {formData.modelType === 'torus' && <a-torus radius="0.5" radius-tubular="0.1" color="purple"></a-torus>}
                   {formData.modelType === 'custom' && formData.modelUrl && (
-                    <a-entity gltf-model={formData.modelUrl}></a-entity>
+                    <a-entity 
+                      gltf-model={formData.modelUrl}
+                      position="0 0 0"
+                    >
+                      {/* Fallback em caso de erro */}
+                      <a-box material="color: gray; opacity: 0.3" scale="0.3 0.3 0.3"></a-box>
+                    </a-entity>
                   )}
                 </a-entity>
 
@@ -313,6 +319,19 @@ const CreatorPanel = () => {
                 <a-grid material="src: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAIklEQVQIW2NkQAKrVq36zwjjgzhhYWGMYAEYB8RmROaABADeOQ8CXl/xfgAAAABJRU5ErkJggg==); repeat: 50 50" rotation="-90 0 0" position="0 0 0" width="20" height="20"></a-grid>
               </a-scene>
             </div>
+
+            {/* Diagnóstico de Modelo */}
+            {formData.modelType === 'custom' && (
+              <div className="alert alert-info small mb-3" role="alert">
+                <strong>Modelo 3D:</strong> {formData.modelUrl || 'Nenhuma URL fornecida'}
+                <br/>
+                {formData.modelUrl && (
+                  <small>
+                    ✓ Teste o arquivo em: <a href={formData.modelUrl} target="_blank" rel="noreferrer" className="text-info">abrir arquivo</a>
+                  </small>
+                )}
+              </div>
+            )}
 
             {/* Controles Deslizantes */}
             <div className="row g-2">

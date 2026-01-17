@@ -134,6 +134,23 @@ const ArViewer = () => {
   // Registra o componente A-Frame dentro do useEffect para garantir que AFRAME esteja carregado
   useEffect(() => {
     if (typeof window !== 'undefined' && window.AFRAME) {
+      // Componente para o texto seguir a câmera
+      if (!window.AFRAME.components['follow-camera']) {
+        window.AFRAME.registerComponent('follow-camera', {
+          tick: function () {
+            const camera = this.el.sceneEl.camera;
+            if (camera) {
+              // Pega a posição da câmera
+              const cameraPos = camera.position;
+              const textPos = this.el.object3D.position;
+              
+              // Faz o texto olhar para a câmera (billboard effect)
+              this.el.object3D.lookAt(cameraPos);
+            }
+          }
+        });
+      }
+
       if (!window.AFRAME.components['mouse-manipulation']) {
         window.AFRAME.registerComponent('mouse-manipulation', {
           schema: { 
@@ -306,7 +323,7 @@ const ArViewer = () => {
   };
 
   // Calcula a posição do texto dinamicamente para acompanhar o objeto
-  // Evita que o texto fique escondido atrás do modelo ou sobreposto
+  // Posiciona abaixo do objeto
   const getTextPosition = () => {
     const pos = character.position ? character.position.split(' ').map(Number) : [0, 0, 0];
     const scale = character.scale ? character.scale.split(' ').map(Number) : [1, 1, 1];
@@ -314,10 +331,10 @@ const ArViewer = () => {
     const objX = pos[0] || 0;
     const objY = pos[1] || 0;
     const objZ = pos[2] || 0;
-    const scaleX = scale[0] || 1;
+    const scaleY = scale[1] || 1;
 
-    // Posiciona à direita: Posição X do objeto + Metade da sua Largura (Escala) + Margem fixa (1.2)
-    return `${objX + (scaleX / 2) + 1.2} ${objY} ${objZ}`;
+    // Posiciona abaixo: Posição Y do objeto - Metade da sua Altura (Escala) - Margem fixa (0.8)
+    return `${objX} ${objY - (scaleY / 2) - 0.8} ${objZ}`;
   };
 
   return (
@@ -334,6 +351,42 @@ const ArViewer = () => {
             transition: none !important;
           }
           .a-enter-vr { display: none; }
+          
+          /* Mobile optimizations */
+          @media (max-width: 768px) {
+            #camera-frame {
+              flex: 0 0 calc(100% - 140px) !important;
+              height: calc(100dvh - 140px) !important;
+            }
+            .ar-panel {
+              padding: 0.5rem !important;
+              max-height: 140px !important;
+              flex: 0 0 140px !important;
+            }
+            .ar-panel h2 {
+              font-size: 0.9rem !important;
+              margin-bottom: 0.5rem !important;
+            }
+            .ar-panel .d-grid {
+              gap: 0.25rem !important;
+            }
+            .ar-panel .btn {
+              font-size: 0.75rem !important;
+              padding: 0.25rem 0.5rem !important;
+            }
+            .ar-model-selector {
+              display: none !important;
+            }
+          }
+          
+          @media (min-width: 769px) {
+            #camera-frame {
+              flex: 1;
+            }
+            .ar-panel {
+              flex: 0 0 auto;
+            }
+          }
         `}
       </style>
       
@@ -418,13 +471,19 @@ const ArViewer = () => {
               </a-entity>
             </a-entity>
 
-            {/* Texto flutuante ao lado do objeto */}
-            <a-entity position={getTextPosition()} rotation="-90 0 0">
+            {/* Texto flutuante acima do objeto - Segue a câmera */}
+            <a-entity position={getTextPosition()} follow-camera="true">
               <a-text 
                 value={character.name} 
-                width="6" 
+                width="4" 
+                height="4"
                 align="center" 
+                anchor="center"
+                baseline="center"
                 color="#ffffff"
+                font="https://cdn.aframe.io/fonts/Roboto-msdf.json"
+                negate="false"
+                wrapCount="20"
               ></a-text>
             </a-entity>
           </a-marker>
@@ -439,15 +498,21 @@ const ArViewer = () => {
         </div>
       </div>
 
-      {/* Painel de Ações (Baixo) */}
+      {/* Painel de Ações (Fixo ao Centro Embaixo) */}
       <div
-        className="bg-white p-3 shadow-lg w-100" 
+        className="bg-white p-3 shadow-lg ar-panel" 
         style={{ 
+          position: 'fixed',
+          bottom: '0',
+          left: '50%',
+          transform: 'translateX(-50%)',
           maxWidth: '600px',
-          flex: '0 0 auto', 
+          width: '90%',
           maxHeight: '35vh', 
           borderRadius: '20px 20px 0 0', 
-          zIndex: 20 
+          zIndex: 20,
+          boxSizing: 'border-box',
+          overflowY: 'auto'
         }}
       >
         <h2 className="h5 fw-bold mb-3">{character.name}</h2>
@@ -470,7 +535,7 @@ const ArViewer = () => {
         </div>
 
         {/* Seletor de Modelos em Tempo de Execução */}
-        <div className="mt-3">
+        <div className="mt-3 ar-model-selector">
           <label className="small fw-bold text-muted mb-1 d-block">Trocar Objeto:</label>
           <div className="d-flex gap-1 overflow-auto pb-1">
             <button className={`btn btn-sm ${character.modelType === 'box' ? 'btn-dark' : 'btn-outline-dark'}`} onClick={() => setCharacter(prev => ({...prev, modelType: 'box'}))}>Cubo</button>

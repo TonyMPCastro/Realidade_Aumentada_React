@@ -1,12 +1,20 @@
-# Sistema de Gerenciamento e Visualização de Experiências em Realidade Aumentada (AR)
+# Sistema de Gerenciamento e Visualização de Realidade Aumentada (AR)
 
-Este projeto consiste em uma plataforma web desenvolvida para facilitar a criação, o gerenciamento e a visualização de conteúdos em Realidade Aumentada baseada em marcadores. A aplicação foi concebida com foco em contextos educacionais, permitindo que instrutores criem narrativas interativas associadas a modelos 3D sem a necessidade de conhecimentos avançados em programação.
+- Este projeto consiste em uma plataforma web desenvolvida para facilitar a criação, o gerenciamento e a visualização de conteúdos em Realidade Aumentada baseada em marcadores.
+- A aplicação foi desenvolvida com foco em aplicações educacionais, permitindo que instrutores criem atividades educacionais interativas associadas a modelos 3D sem a necessidade de conhecimentos avançados em programação.
 
 ## 1. Visão Geral
 
 A solução é dividida em dois módulos principais:
-*   **Painel do Criador**: Uma interface administrativa (CRUD) onde o usuário define parâmetros como nome do personagem, narrativa histórica, tipo de modelo 3D (primitivos ou arquivos `.glb` customizados), além de ajustes finos de escala, rotação e posição.
-*   **Visualizador AR**: Um ambiente de execução que utiliza a API de câmera do navegador para rastrear o marcador "Hiro" e renderizar o conteúdo configurado em tempo real.
+*   **Painel do Criador**:
+    - Interface administrativa (CRUD) simples e intuitiva
+    - Define parâmetros como nome do material ou objeto educaional, descrição, narrativa histórica
+    - Tipo de modelo 3D (primitivos ou arquivos `.glb` customizados)
+    - Ajustes finos de escala, rotação e posição
+      
+*   **Visualizador AR**:
+    - Ambiente de execução que utiliza a API de câmera do navegador para rastrear o marcador "Hiro"
+    - Renderizar o conteúdo configurado em tempo real
 
 ## 2. Arquitetura e Tecnologias
 
@@ -59,6 +67,25 @@ npm run build
 3.  Clique em "Salvar & Gerar".
 4.  Utilize o QR Code gerado para abrir a URL no dispositivo móvel.
 5.  Aponte a câmera para um marcador **Hiro** impresso ou digital para visualizar a experiência.
+
+## 6. Tutorial
+1. Acessar home localhost
+   - Executar aquivo .json 
+3. Pagina inicial:
+   - Cadastar imagens no sistema
+   - Imgens 3d em arquivo .glb
+   - Inseri descrição da imagem
+   - Escolher modelo (URL ou arquivo)
+   - Previsualização do objeto e ajustes báicos (tamnho, posição e inclinação) 
+   - Salvar e atualizar
+    
+4. Visualização
+   - Abrir link de visualização
+   - Posicionar câmera e rasrear o marcador "Hiro"
+   - Objetivo será projetado sobre área do marcador
+   - Movimentar objeto com a própria câmera ou mouse
+     
+5. Sair do sitema
 
 ---
 *Trabalho desenvolvido como parte do projeto de exploração de tecnologias imersivas com React.*

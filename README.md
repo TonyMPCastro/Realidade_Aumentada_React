@@ -1,3 +1,18 @@
+### Universidade Federal do Maranhão
+### Engenharia da Computação
+### Computação Gráfica
+
+#### Trablho: Sistema de Gerenciamento e Visualização de Realidade Aumentada (AR)  **:
+
+#### Prof. Dr. Haroldo Gomes Barroso Filho
+#### Equipe:
+- Antônio Marcos patrício Castro
+- Nilton Maciel Mangueira
+
+---
+
+# Documentação
+
 # Sistema de Gerenciamento e Visualização de Realidade Aumentada (AR)
 
 - Este projeto consiste em uma plataforma web desenvolvida para facilitar a criação, o gerenciamento e a visualização de conteúdos em Realidade Aumentada baseada em marcadores.

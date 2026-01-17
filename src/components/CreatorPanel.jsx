@@ -117,15 +117,15 @@ const CreatorPanel = () => {
       createdAt: new Date().toISOString()
     };
 
-    // Gera a URL final
+    // Gera a URL final com encodeURIComponent para suportar acentos
     const params = new URLSearchParams({
-      name: newItem.name,
-      description: newItem.description,
-      modelType: newItem.modelType,
-      modelUrl: newItem.modelUrl || '',
-      position: newItem.position,
-      rotation: newItem.rotation,
-      scale: newItem.scale
+      name: encodeURIComponent(newItem.name),
+      description: encodeURIComponent(newItem.description),
+      modelType: encodeURIComponent(newItem.modelType),
+      modelUrl: encodeURIComponent(newItem.modelUrl || ''),
+      position: encodeURIComponent(newItem.position),
+      rotation: encodeURIComponent(newItem.rotation),
+      scale: encodeURIComponent(newItem.scale)
     }).toString();
     
     newItem.fullUrl = `${baseUrl}?${params}`;

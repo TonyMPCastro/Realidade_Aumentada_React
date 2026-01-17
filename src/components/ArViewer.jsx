@@ -6,13 +6,13 @@ const ArViewer = () => {
   
   // Inicializa o estado JÁ com os dados da URL para garantir que a posição inicial seja respeitada desde o primeiro frame
   const [character, setCharacter] = useState(() => {
-    const name = searchParams.get('name');
-    const description = searchParams.get('description');
-    const modelType = searchParams.get('modelType');
-    const modelUrlParam = searchParams.get('modelUrl');
-    const position = searchParams.get('position');
-    const rotation = searchParams.get('rotation');
-    const scale = searchParams.get('scale');
+    const name = searchParams.get('name') ? decodeURIComponent(searchParams.get('name')) : null;
+    const description = searchParams.get('description') ? decodeURIComponent(searchParams.get('description')) : null;
+    const modelType = searchParams.get('modelType') ? decodeURIComponent(searchParams.get('modelType')) : null;
+    const modelUrlParam = searchParams.get('modelUrl') ? decodeURIComponent(searchParams.get('modelUrl')) : null;
+    const position = searchParams.get('position') ? decodeURIComponent(searchParams.get('position')) : null;
+    const rotation = searchParams.get('rotation') ? decodeURIComponent(searchParams.get('rotation')) : null;
+    const scale = searchParams.get('scale') ? decodeURIComponent(searchParams.get('scale')) : null;
 
     if (name) {
       let finalUrl = modelUrlParam;
@@ -47,6 +47,7 @@ const ArViewer = () => {
   const markerRef = useRef(null);
   const customModelRef = useRef(null);
   const modelContainerRef = useRef(null);
+  const textEntityRef = useRef(null);
   const [dialogues, setDialogues] = useState([]);
   const [currentLine, setCurrentLine] = useState(0);
   const [facingMode, setFacingMode] = useState('environment');
@@ -54,6 +55,14 @@ const ArViewer = () => {
   const toggleCamera = () => {
     setFacingMode(prev => (prev === 'environment' ? 'user' : 'environment'));
   };
+
+  // Atualiza o atributo canvas-text quando character.name muda
+  useEffect(() => {
+    if (textEntityRef.current && character.name) {
+      const attrValue = `text: ${character.name}; color: #ffffff; fontSize: 64`;
+      textEntityRef.current.setAttribute('canvas-text', attrValue);
+    }
+  }, [character.name]);
 
   // Limpeza do AR.js ao sair da tela (Desmontar componente)
   useEffect(() => {
@@ -134,6 +143,65 @@ const ArViewer = () => {
   // Registra o componente A-Frame dentro do useEffect para garantir que AFRAME esteja carregado
   useEffect(() => {
     if (typeof window !== 'undefined' && window.AFRAME) {
+      // Componente customizado para renderizar texto com canvas (suporta UTF-8 e acentos)
+      if (!window.AFRAME.components['canvas-text']) {
+        window.AFRAME.registerComponent('canvas-text', {
+          schema: {
+            text: { type: 'string', default: '' },
+            fontSize: { type: 'number', default: 64 },
+            color: { type: 'string', default: '#ffffff' }
+          },
+          init: function () {
+            this.createTextMesh();
+          },
+          update: function () {
+            // Remove mesh anterior se existir
+            if (this.mesh) {
+              this.el.object3D.remove(this.mesh);
+            }
+            this.createTextMesh();
+          },
+          createTextMesh: function () {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const fontSize = this.data.fontSize;
+            
+            canvas.width = 1024;
+            canvas.height = 256;
+            
+            // Fundo transparente
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Configurar fonte com suporte a UTF-8
+            ctx.font = `bold ${fontSize}px Arial, sans-serif`;
+            ctx.fillStyle = this.data.color;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Renderizar texto
+            ctx.fillText(this.data.text, canvas.width / 2, canvas.height / 2);
+            
+            // Criar textura - acessa THREE via AFRAME
+            const THREE = window.AFRAME.THREE;
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.magFilter = THREE.LinearFilter;
+            texture.minFilter = THREE.LinearFilter;
+            
+            // Criar material
+            const material = new THREE.MeshBasicMaterial({ 
+              map: texture, 
+              transparent: true,
+              side: THREE.DoubleSide
+            });
+            
+            // Criar mesh
+            const geometry = new THREE.PlaneGeometry(4, 1);
+            this.mesh = new THREE.Mesh(geometry, material);
+            this.el.setObject3D('mesh', this.mesh);
+          }
+        });
+      }
+
       // Componente para o texto seguir a câmera
       if (!window.AFRAME.components['follow-camera']) {
         window.AFRAME.registerComponent('follow-camera', {
@@ -471,21 +539,12 @@ const ArViewer = () => {
               </a-entity>
             </a-entity>
 
-            {/* Texto flutuante acima do objeto - Segue a câmera */}
-            <a-entity position={getTextPosition()} follow-camera="true">
-              <a-text 
-                value={character.name} 
-                width="4" 
-                height="4"
-                align="center" 
-                anchor="center"
-                baseline="center"
-                color="#ffffff"
-                font="https://cdn.aframe.io/fonts/Roboto-msdf.json"
-                negate="false"
-                wrapCount="20"
-              ></a-text>
-            </a-entity>
+            {/* Texto flutuante acima do objeto - Segue a câmera com suporte a UTF-8 */}
+            <a-entity 
+              ref={textEntityRef}
+              position={getTextPosition()} 
+              follow-camera="true" 
+            ></a-entity>
           </a-marker>
           <a-entity camera="near: 0.01; far: 1000;"></a-entity>
         </a-scene>

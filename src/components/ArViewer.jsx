@@ -105,11 +105,29 @@ const ArViewer = () => {
       const video = document.querySelector('#arjs-video');
       const canvas = document.querySelector('.a-canvas');
       const container = document.querySelector('#camera-frame');
+      const isMobile = window.innerWidth <= 768;
       
-      if (container) {
-        const rect = container.getBoundingClientRect();
-        
-        if (video) {
+      if (container && video && canvas) {
+        if (isMobile) {
+          // Mobile: usar absolute positioning dentro do container
+          video.style.setProperty('width', '100%', 'important');
+          video.style.setProperty('height', '100%', 'important');
+          video.style.setProperty('position', 'absolute', 'important');
+          video.style.setProperty('top', '0', 'important');
+          video.style.setProperty('left', '0', 'important');
+          video.style.setProperty('object-fit', 'cover', 'important');
+          video.style.setProperty('margin', '0', 'important');
+          video.style.setProperty('padding', '0', 'important');
+          video.style.zIndex = '0';
+          
+          canvas.style.setProperty('width', '100%', 'important');
+          canvas.style.setProperty('height', '100%', 'important');
+          canvas.style.setProperty('position', 'absolute', 'important');
+          canvas.style.setProperty('top', '0', 'important');
+          canvas.style.setProperty('left', '0', 'important');
+        } else {
+          // Desktop: manter comportamento anterior
+          const rect = container.getBoundingClientRect();
           video.style.setProperty('width', `${rect.width}px`, 'important');
           video.style.setProperty('height', `${rect.height}px`, 'important');
           video.style.setProperty('position', 'fixed', 'important');
@@ -119,9 +137,7 @@ const ArViewer = () => {
           video.style.setProperty('margin-left', '0px', 'important');
           video.style.setProperty('margin-top', '0px', 'important');
           video.style.zIndex = '0';
-        }
-
-        if (canvas) {
+          
           canvas.style.setProperty('width', `${rect.width}px`, 'important');
           canvas.style.setProperty('height', `${rect.height}px`, 'important');
         }
@@ -427,14 +443,15 @@ const ArViewer = () => {
               overflow: hidden !important;
             }
             #camera-frame {
-              position: fixed !important;
+              position: absolute !important;
               top: 0 !important;
               left: 0 !important;
               right: 0 !important;
               bottom: 0 !important;
-              width: 100vw !important;
-              height: 100dvh !important;
+              width: 100% !important;
+              height: 100% !important;
               flex: none !important;
+              overflow: hidden !important;
             }
             .ar-panel {
               padding: 0.75rem !important;

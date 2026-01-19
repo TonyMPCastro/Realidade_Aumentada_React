@@ -3,6 +3,19 @@ import { useSearchParams } from 'react-router-dom';
 
 const ArViewer = () => {
   const [searchParams] = useSearchParams();
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Detecta se é mobile na montagem
+  useEffect(() => {
+    const checkMobile = () => {
+      const isM = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+                  || (window.innerWidth <= 768);
+      setIsMobile(isM);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   // Inicializa o estado JÁ com os dados da URL para garantir que a posição inicial seja respeitada desde o primeiro frame
   const [character, setCharacter] = useState(() => {
@@ -420,11 +433,24 @@ const ArViewer = () => {
           }
           .a-enter-vr { display: none; }
           
-          /* Mobile optimizations */
+          /* Mobile optimizations - Fullscreen camera */
           @media (max-width: 768px) {
             #camera-frame {
-              flex: 0 0 calc(100% - 140px) !important;
-              height: calc(100dvh - 140px) !important;
+              flex: 0 0 100% !important;
+              height: 100dvh !important;
+            }
+            .ar-panel {
+              display: none !important;
+            }
+            .ar-model-selector {
+              display: none !important;
+            }
+          }
+          
+          /* Desktop layout - Keep original behavior */
+          @media (min-width: 769px) {
+            #camera-frame {
+              flex: 1;
             }
             .ar-panel {
               padding: 0.5rem !important;
@@ -441,18 +467,6 @@ const ArViewer = () => {
             .ar-panel .btn {
               font-size: 0.75rem !important;
               padding: 0.25rem 0.5rem !important;
-            }
-            .ar-model-selector {
-              display: none !important;
-            }
-          }
-          
-          @media (min-width: 769px) {
-            #camera-frame {
-              flex: 1;
-            }
-            .ar-panel {
-              flex: 0 0 auto;
             }
           }
         `}
@@ -551,13 +565,33 @@ const ArViewer = () => {
 
         {/* Badge de Status flutuando no quadro da câmera */}
         <div style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 10 }}>
-          <span className={`badge ${markerFound ? 'bg-success' : 'bg-warning text-dark'}`}>
-            {markerFound ? '✅ Hiro Detectado' : '🔍 Procure o Hiro'}
-          </span>
+          <div style={{
+            padding: '8px 12px',
+            borderRadius: '20px',
+            backgroundColor: markerFound ? '#10b981' : '#fbbf24',
+            color: markerFound ? '#ffffff' : '#000000',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+            animation: markerFound ? 'pulse 2s infinite' : 'none'
+          }}>
+            <span>{markerFound ? '✓' : '○'}</span>
+            <span>{markerFound ? 'Marcador Detectado' : 'Procurando marcador...'}</span>
+          </div>
+          <style>{`
+            @keyframes pulse {
+              0%, 100% { opacity: 1; transform: scale(1); }
+              50% { opacity: 0.8; transform: scale(1.05); }
+            }
+          `}</style>
         </div>
       </div>
 
-      {/* Painel de Ações (Fixo ao Centro Embaixo) */}
+      {/* Painel de Ações (Fixo ao Centro Embaixo) - Apenas em Desktop */}
+      {!isMobile && (
       <div
         className="bg-white p-3 shadow-lg ar-panel" 
         style={{ 
@@ -611,6 +645,7 @@ const ArViewer = () => {
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 };

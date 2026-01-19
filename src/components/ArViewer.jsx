@@ -422,10 +422,19 @@ const ArViewer = () => {
           
           /* Mobile optimizations */
           @media (max-width: 768px) {
-            #camera-frame {
-              flex: 1 1 100% !important;
+            body, html {
               height: 100dvh !important;
+              overflow: hidden !important;
+            }
+            #camera-frame {
+              position: fixed !important;
+              top: 0 !important;
+              left: 0 !important;
+              right: 0 !important;
+              bottom: 0 !important;
               width: 100vw !important;
+              height: 100dvh !important;
+              flex: none !important;
             }
             .ar-panel {
               padding: 0.75rem !important;
@@ -438,6 +447,8 @@ const ArViewer = () => {
               border-radius: 15px !important;
               background-color: rgba(255, 255, 255, 0.95) !important;
               backdrop-filter: blur(10px) !important;
+              position: fixed !important;
+              z-index: 100 !important;
             }
             .ar-panel h2 {
               font-size: 0.95rem !important;

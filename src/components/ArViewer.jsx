@@ -423,24 +423,33 @@ const ArViewer = () => {
           /* Mobile optimizations */
           @media (max-width: 768px) {
             #camera-frame {
-              flex: 0 0 calc(100% - 140px) !important;
-              height: calc(100dvh - 140px) !important;
+              flex: 1 1 100% !important;
+              height: 100dvh !important;
+              width: 100vw !important;
             }
             .ar-panel {
-              padding: 0.5rem !important;
-              max-height: 140px !important;
-              flex: 0 0 140px !important;
+              padding: 0.75rem !important;
+              max-height: auto !important;
+              width: 95vw !important;
+              max-width: 600px !important;
+              bottom: 15px !important;
+              left: 50% !important;
+              transform: translateX(-50%) !important;
+              border-radius: 15px !important;
+              background-color: rgba(255, 255, 255, 0.95) !important;
+              backdrop-filter: blur(10px) !important;
             }
             .ar-panel h2 {
-              font-size: 0.9rem !important;
+              font-size: 0.95rem !important;
               margin-bottom: 0.5rem !important;
+              margin-top: 0 !important;
             }
             .ar-panel .d-grid {
-              gap: 0.25rem !important;
+              gap: 0.35rem !important;
             }
             .ar-panel .btn {
-              font-size: 0.75rem !important;
-              padding: 0.25rem 0.5rem !important;
+              font-size: 0.8rem !important;
+              padding: 0.4rem 0.6rem !important;
             }
             .ar-model-selector {
               display: none !important;

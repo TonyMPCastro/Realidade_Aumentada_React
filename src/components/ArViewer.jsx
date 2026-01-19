@@ -556,15 +556,15 @@ const ArViewer = () => {
                   </a-entity>
                 )}
                 {character.modelType === 'custom' && <a-entity ref={customModelRef} gltf-model={character.modelUrl}></a-entity>}
+                
+                {/* Texto flutuante acima do objeto - Dentro do modelo para acompanhar rotação/movimento */}
+                <a-entity 
+                  ref={textEntityRef}
+                  position={getTextPosition()} 
+                  follow-camera="true" 
+                ></a-entity>
               </a-entity>
             </a-entity>
-
-            {/* Texto flutuante acima do objeto - Segue a câmera com suporte a UTF-8 */}
-            <a-entity 
-              ref={textEntityRef}
-              position={getTextPosition()} 
-              follow-camera="true" 
-            ></a-entity>
           </a-marker>
           <a-entity camera="near: 0.01; far: 1000;"></a-entity>
         </a-scene>

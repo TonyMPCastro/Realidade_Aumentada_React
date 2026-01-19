@@ -118,44 +118,25 @@ const ArViewer = () => {
       const video = document.querySelector('#arjs-video');
       const canvas = document.querySelector('.a-canvas');
       const container = document.querySelector('#camera-frame');
-      const scene = document.querySelector('a-scene');
       
       if (container) {
         const rect = container.getBoundingClientRect();
-        const width = window.innerWidth;
-        const height = window.innerHeight;
         
         if (video) {
-          video.style.setProperty('width', `${width}px`, 'important');
-          video.style.setProperty('height', `${height}px`, 'important');
+          video.style.setProperty('width', `${rect.width}px`, 'important');
+          video.style.setProperty('height', `${rect.height}px`, 'important');
           video.style.setProperty('position', 'fixed', 'important');
-          video.style.setProperty('top', '0px', 'important');
-          video.style.setProperty('left', '0px', 'important');
+          video.style.setProperty('top', `${rect.top}px`, 'important');
+          video.style.setProperty('left', `${rect.left}px`, 'important');
           video.style.setProperty('object-fit', 'cover', 'important');
-          video.style.setProperty('margin', '0px', 'important');
-          video.style.setProperty('padding', '0px', 'important');
-          video.style.setProperty('border', 'none', 'important');
+          video.style.setProperty('margin-left', '0px', 'important');
+          video.style.setProperty('margin-top', '0px', 'important');
           video.style.zIndex = '0';
         }
 
         if (canvas) {
-          canvas.style.setProperty('width', `${width}px`, 'important');
-          canvas.style.setProperty('height', `${height}px`, 'important');
-          canvas.style.setProperty('top', '0px', 'important');
-          canvas.style.setProperty('left', '0px', 'important');
-          canvas.style.setProperty('position', 'fixed', 'important');
-          canvas.style.setProperty('margin', '0px', 'important');
-          canvas.style.setProperty('padding', '0px', 'important');
-        }
-
-        if (scene) {
-          scene.style.setProperty('width', `${width}px`, 'important');
-          scene.style.setProperty('height', `${height}px`, 'important');
-          scene.style.setProperty('position', 'fixed', 'important');
-          scene.style.setProperty('top', '0px', 'important');
-          scene.style.setProperty('left', '0px', 'important');
-          scene.style.setProperty('margin', '0px', 'important');
-          scene.style.setProperty('padding', '0px', 'important');
+          canvas.style.setProperty('width', `${rect.width}px`, 'important');
+          canvas.style.setProperty('height', `${rect.height}px`, 'important');
         }
       }
     };
@@ -438,17 +419,7 @@ const ArViewer = () => {
   };
 
   return (
-    <div className="d-flex flex-column align-items-center" style={{ 
-      height: '100dvh', 
-      width: '100vw', 
-      backgroundColor: '#000000', 
-      overflow: 'hidden',
-      margin: 0,
-      padding: 0,
-      position: 'fixed',
-      top: 0,
-      left: 0
-    }}>
+    <div className="d-flex flex-column align-items-center" style={{ height: '100dvh', width: '100vw', backgroundColor: 'transparent', overflow: 'hidden' }}>
       <style>
         {`
           .a-canvas {
@@ -502,20 +473,7 @@ const ArViewer = () => {
       </style>
       
       {/* Quadro da Câmera (Topo) */}
-      <div id="camera-frame" style={{ 
-        width: '100vw', 
-        height: '100dvh', 
-        position: 'fixed', 
-        top: 0, 
-        left: 0,
-        overflow: 'hidden', 
-        backgroundColor: '#000000', 
-        touchAction: 'none',
-        zIndex: 1,
-        margin: 0,
-        padding: 0,
-        border: 'none'
-      }}>
+      <div id="camera-frame" style={{ width: '100%', flex: '1', position: 'relative', overflow: 'hidden', backgroundColor: 'transparent', touchAction: 'none' }}>
         <a-scene 
           key={facingMode}
           embedded 
@@ -630,39 +588,6 @@ const ArViewer = () => {
             }
           `}</style>
         </div>
-
-        {/* Botão Flutuante para Trocar Câmera - Apenas Mobile */}
-        {isMobile && (
-        <button
-          onClick={toggleCamera}
-          style={{
-            position: 'absolute',
-            bottom: '20px',
-            right: '20px',
-            width: '60px',
-            height: '60px',
-            borderRadius: '50%',
-            backgroundColor: '#007bff',
-            color: 'white',
-            border: 'none',
-            fontSize: '24px',
-            cursor: 'pointer',
-            zIndex: 11,
-            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'transform 0.2s, box-shadow 0.2s'
-          }}
-          onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
-          onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
-          onTouchStart={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
-          onTouchEnd={(e) => e.currentTarget.style.transform = 'scale(1)'}
-          title={facingMode === 'environment' ? 'Câmera Frontal' : 'Câmera Traseira'}
-        >
-          {facingMode === 'environment' ? '📷' : '🤳'}
-        </button>
-        )}
       </div>
 
       {/* Painel de Ações (Fixo ao Centro Embaixo) - Apenas em Desktop */}

@@ -109,8 +109,17 @@ const ArViewer = () => {
       
       if (video && canvas && container) {
         if (isMobile) {
-          // Mobile: esconder vídeo e usar apenas canvas
-          video.style.setProperty('display', 'none', 'important');
+          // Mobile: posicionar vídeo fora da tela para captura funcionar, mas não aparecer visualmente
+          video.style.setProperty('position', 'absolute', 'important');
+          video.style.setProperty('width', '1px', 'important');
+          video.style.setProperty('height', '1px', 'important');
+          video.style.setProperty('left', '-9999px', 'important');
+          video.style.setProperty('top', '-9999px', 'important');
+          video.style.setProperty('visibility', 'hidden', 'important');
+          video.style.setProperty('opacity', '0', 'important');
+          video.style.setProperty('margin', '0', 'important');
+          video.style.setProperty('padding', '0', 'important');
+          video.style.zIndex = '-1';
           
           canvas.style.setProperty('width', '100%', 'important');
           canvas.style.setProperty('height', '100%', 'important');
@@ -126,7 +135,8 @@ const ArViewer = () => {
         } else {
           // Desktop: manter comportamento anterior
           const rect = container.getBoundingClientRect();
-          video.style.setProperty('display', 'block', 'important');
+          video.style.setProperty('visibility', 'visible', 'important');
+          video.style.setProperty('opacity', '1', 'important');
           video.style.setProperty('width', `${rect.width}px`, 'important');
           video.style.setProperty('height', `${rect.height}px`, 'important');
           video.style.setProperty('position', 'fixed', 'important');
@@ -437,9 +447,6 @@ const ArViewer = () => {
           
           /* Mobile optimizations */
           @media (max-width: 768px) {
-            #arjs-video {
-              display: none !important;
-            }
             body, html {
               height: 100dvh !important;
               overflow: hidden !important;

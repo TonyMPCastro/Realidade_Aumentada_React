@@ -422,7 +422,7 @@ const ArViewer = () => {
   };
 
   return (
-    <div className="d-flex flex-column align-items-center" style={{ height: '100dvh', width: '100vw', backgroundColor: 'transparent', overflow: 'hidden' }}>
+    <div className="d-flex flex-column align-items-center" style={{ height: '100dvh', width: '100vw', backgroundColor: 'transparent', overflow: 'hidden', position: 'relative' }}>
       <style>
         {`
           .a-canvas {
@@ -442,6 +442,9 @@ const ArViewer = () => {
               height: 100dvh !important;
               overflow: hidden !important;
             }
+            .d-flex {
+              position: relative !important;
+            }
             #camera-frame {
               position: absolute !important;
               top: 0 !important;
@@ -452,6 +455,15 @@ const ArViewer = () => {
               height: 100% !important;
               flex: none !important;
               overflow: hidden !important;
+              border: none !important;
+              display: block !important;
+            }
+            #scene {
+              width: 100% !important;
+              height: 100% !important;
+              position: absolute !important;
+              top: 0 !important;
+              left: 0 !important;
             }
             .ar-panel {
               padding: 0.75rem !important;
@@ -496,7 +508,7 @@ const ArViewer = () => {
       </style>
       
       {/* Quadro da Câmera (Topo) */}
-      <div id="camera-frame" style={{ width: '100%', flex: '1', position: 'relative', overflow: 'hidden', backgroundColor: 'transparent', touchAction: 'none' }}>
+      <div id="camera-frame" style={{ width: '100%', flex: '1', overflow: 'hidden', backgroundColor: 'transparent', touchAction: 'none' }}>
         <a-scene 
           key={facingMode}
           embedded 

@@ -107,27 +107,26 @@ const ArViewer = () => {
       const container = document.querySelector('#camera-frame');
       const isMobile = window.innerWidth <= 768;
       
-      if (container && video && canvas) {
+      if (video && canvas && container) {
         if (isMobile) {
-          // Mobile: usar absolute positioning dentro do container
-          video.style.setProperty('width', '100%', 'important');
-          video.style.setProperty('height', '100%', 'important');
-          video.style.setProperty('position', 'absolute', 'important');
-          video.style.setProperty('top', '0', 'important');
-          video.style.setProperty('left', '0', 'important');
-          video.style.setProperty('object-fit', 'cover', 'important');
-          video.style.setProperty('margin', '0', 'important');
-          video.style.setProperty('padding', '0', 'important');
-          video.style.zIndex = '0';
+          // Mobile: esconder vídeo e usar apenas canvas
+          video.style.setProperty('display', 'none', 'important');
           
           canvas.style.setProperty('width', '100%', 'important');
           canvas.style.setProperty('height', '100%', 'important');
           canvas.style.setProperty('position', 'absolute', 'important');
           canvas.style.setProperty('top', '0', 'important');
           canvas.style.setProperty('left', '0', 'important');
+          canvas.style.setProperty('right', '0', 'important');
+          canvas.style.setProperty('bottom', '0', 'important');
+          canvas.style.setProperty('margin', '0', 'important');
+          canvas.style.setProperty('padding', '0', 'important');
+          canvas.style.setProperty('border', 'none', 'important');
+          canvas.style.zIndex = '1';
         } else {
           // Desktop: manter comportamento anterior
           const rect = container.getBoundingClientRect();
+          video.style.setProperty('display', 'block', 'important');
           video.style.setProperty('width', `${rect.width}px`, 'important');
           video.style.setProperty('height', `${rect.height}px`, 'important');
           video.style.setProperty('position', 'fixed', 'important');
@@ -438,6 +437,9 @@ const ArViewer = () => {
           
           /* Mobile optimizations */
           @media (max-width: 768px) {
+            #arjs-video {
+              display: none !important;
+            }
             body, html {
               height: 100dvh !important;
               overflow: hidden !important;
